@@ -6,6 +6,7 @@ Flask
 
 # How to resolve Dependencies
 From terminal
+
       - pip install Flask==0.12.2
       
 # How to Run
