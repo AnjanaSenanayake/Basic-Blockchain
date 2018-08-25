@@ -11,8 +11,14 @@ From terminal
 # How to Run
 
 1). Run blockchain.py
+
 2). Use Postman(or likewise)
+
        - [GET]localhost:5000/get_chain
+       
        - [POST]localhost:5000/add_transaction 
+       
            >> include a relevant json object with: (item_name,transaction_date,current_owner,previous_owner,transaction_amount)
+           
        - [GET]localhost:5000/mine_block
+       
