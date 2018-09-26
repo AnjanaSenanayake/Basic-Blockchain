@@ -8,6 +8,8 @@ import datetime
 import hashlib
 import json
 from flask import Flask,jsonify,request
+from uuid import uuid4
+from urllib.parse import urlparse
 
 #Blockchain Class
 class Blockchain:
@@ -20,6 +22,7 @@ class Blockchain:
                             'previous_owner' : 'Mrs. Hudson',
                             'ransaction_amount' : '400pounds/year'}]
         self.create_block(proof=1, previous_hash='0')
+        self.nodes = set()
         
     def create_block(self,proof,previous_hash):
         block = {'index' : len(self.chain)+1,
@@ -75,6 +78,27 @@ class Blockchain:
             block_index += 1
         return True
 
+    def add_node(self, address):
+        parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc)
+    
+    def replace_chain(self):
+        network = self.nodes
+        longest_chain = None
+        max_length = len(self.chain)
+        for node in network:
+            response = requests.get(f'http://{node}/get_chain')
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                if length > max_length and self.is_chain_valid(chain):
+                    max_length = length
+                    longest_chain = chain
+        if longest_chain:
+            self.chain = longest_chain
+            return True
+        return False
+
 # Creating a Web App
 app = Flask(__name__)
 
@@ -125,6 +149,31 @@ def is_valid():
         response = {'message': 'The Blockchain is valid.'}
     else:
         response = {'message': 'The Blockchain is not valid.'}
+    return jsonify(response), 200
+
+# Connecting new nodes
+@app.route('/connect_node', methods = ['POST'])
+def connect_node():
+    json = request.get_json()
+    nodes = json.get('nodes')
+    if nodes is None:
+        return "No node", 400
+    for node in nodes:
+        blockchain.add_node(node)
+    response = {'message': 'All the nodes are now connected.',
+                'total_nodes': list(blockchain.nodes)}
+    return jsonify(response), 201
+
+# Replacing the chain by the longest chain if needed
+@app.route('/replace_chain', methods = ['GET'])
+def replace_chain():
+    is_chain_replaced = blockchain.replace_chain()
+    if is_chain_replaced:
+        response = {'message': 'The nodes had different chains so the chain was replaced by the longest one.',
+                    'new_chain': blockchain.chain}
+    else:
+        response = {'message': 'All good. The chain is the largest one.',
+                    'actual_chain': blockchain.chain}
     return jsonify(response), 200
 
 # Running the app
