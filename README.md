@@ -19,6 +19,8 @@ From terminal
        - [POST]localhost:5000/add_transaction 
            >> include a relevant json object with: (item_name,transaction_date,current_owner,previous_owner,transaction_amount)          
        - [GET]localhost:5000/mine_block
+       - [POST]localhost:5000/connect_node
+       - [GET]localhost:5000/replace_chain
     
 # Reference
 https://github.com/harrywang/blockchain-hackernoon
