@@ -20,6 +20,9 @@ From terminal
            >> include a relevant json object with: (item_name,transaction_date,current_owner,previous_owner,transaction_amount)          
        - [GET]localhost:5000/mine_block
        - [POST]localhost:5000/connect_node
+          body--> {
+	            "nodes":["http://127.0.0.1:5001", "http://127.0.0.1:5002"]
+                  }
        - [GET]localhost:5000/replace_chain
     
 # Reference
